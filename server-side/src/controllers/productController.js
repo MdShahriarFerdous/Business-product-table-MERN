@@ -7,6 +7,8 @@ exports.productList = async (req, res) => {
 		const perPageNumber = Number(perPage) || 10;
 		const skipRows = (pageNumber - 1) * perPageNumber;
 
+		let totalCount;
+		let rowsData;
 		const searchQuery = {};
 		if (searchKeyword !== "0") {
 			const searchRegex = { $regex: searchKeyword, $options: "i" };
@@ -16,19 +18,30 @@ exports.productList = async (req, res) => {
 				{ category: searchRegex },
 				{ subcategory: searchRegex },
 			];
-		}
-		const totalCount = (
-			await Product.aggregate([
-				{ $match: searchQuery },
-				{ $count: "total" },
-			])
-		)[0]["total"]; //array of object
 
-		const rowsData = await Product.aggregate([
-			{ $match: searchQuery },
-			{ $skip: skipRows },
-			{ $limit: perPageNumber },
-		]);
+			totalCount = (
+				await Product.aggregate([
+					{ $match: searchQuery },
+					{ $count: "total" },
+				])
+			)[0]["total"]; //array of object
+
+			rowsData = await Product.aggregate([
+				{ $match: searchQuery },
+				{ $skip: skipRows },
+				{ $limit: perPageNumber },
+			]);
+		} else {
+			totalCount = (await Product.aggregate([{ $count: "total" }]))[0][
+				"total"
+			]; //array of object
+
+			rowsData = await Product.aggregate([
+				{ $skip: skipRows },
+				{ $limit: perPageNumber },
+			]);
+		}
+
 		res.status(200).json({ total: totalCount, productData: rowsData });
 	} catch (error) {
 		console.error(error);

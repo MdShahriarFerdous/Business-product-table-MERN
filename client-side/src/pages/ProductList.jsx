@@ -6,7 +6,7 @@ import ReactPaginate from "react-paginate";
 
 const ProductList = () => {
 	const [fetchData, setFetchData] = useData();
-	const [setLoader] = useLoader();
+	const [loader, setLoader] = useLoader();
 
 	const [searchKeyword, setSearchKeyword] = useState("0");
 	const [perPage, setPerPage] = useState(5);
@@ -28,16 +28,23 @@ const ProductList = () => {
 		setLoader(false);
 	};
 
+	//pagination function
 	const handlePageClick = (event) => {
 		getProducts(event.selected + 1, perPage, searchKeyword);
 	};
 
+	//select per page function
 	const PageKeyOnChange = (event) => {
 		setPerPage(parseInt(event.target.value));
 	};
 
+	//when type word or letter it will set that to usestate variable
 	const searchOnChange = (event) => {
 		setSearchKeyword(event.target.value);
+		if (event.target.value.length === 0) {
+			setSearchKeyword("0");
+			getProducts(1, perPage, "0");
+		}
 	};
 
 	const handleSearchData = () => {
@@ -46,6 +53,7 @@ const ProductList = () => {
 
 	const productsData = fetchData.productData;
 	const totalDataCount = fetchData.total;
+
 	return (
 		<div className="container my-5">
 			<div className="row">
@@ -53,10 +61,13 @@ const ProductList = () => {
 					<div className="card">
 						<div className="card-body">
 							<div className="container-fluid">
+								{/* 1st Row */}
 								<div className="row">
+									{/*col-6 = Header*/}
 									<div className="col-6">
 										<h5>My Product List</h5>
 									</div>
+									{/*col-2 = select per page*/}
 									<div className="col-2">
 										<select
 											onChange={PageKeyOnChange}
@@ -88,6 +99,7 @@ const ProductList = () => {
 											</option>
 										</select>
 									</div>
+									{/*col-4 = search and button, total col = 12 end*/}
 									<div className="col-4">
 										<div className="input-group mb-3">
 											<input
@@ -108,7 +120,9 @@ const ProductList = () => {
 										</div>
 									</div>
 								</div>
+								{/* 2nd Row */}
 								<div className="row">
+									{/*col-12 = full table*/}
 									<div className="col-12 ">
 										<div className="table-responsive data-table ">
 											<table className="table">
@@ -195,7 +209,7 @@ const ProductList = () => {
 											</table>
 										</div>
 									</div>
-
+									{/*col-12 = pagination*/}
 									<div className="col-12 mt-5">
 										<nav aria-label="Page navigation example">
 											<ReactPaginate
